@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids WonderHub - Learning & Activity Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Quicksand', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            background: linear-gradient(135deg, #e0f2fe 0%, #fef3c7 50%, #f3e8ff 100%);
+            min-height: 100vh;
+        }
+
+        /* Essential Display Rules to Prevent Blank Screens */
+        .tab-content {
+            display: none !important;
+        }
+        .tab-content.active-tab {
+            display: block !important;
+        }
+
+        /* 3D Soft Rounded Buttons */
+        .btn-3d {
+            transition: all 0.15s ease;
+            box-shadow: 0px 6px 0px rgba(0, 0, 0, 0.15), 0px 8px 15px rgba(0,0,0,0.08);
+        }
+        .btn-3d:hover {
+            transform: translateY(-2px);
+        }
+        .btn-3d:active {
+            transform: translateY(3px);
+            box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.15), 0px 4px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Float Animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: floatSlow 3.5s ease-in-out infinite;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col min-h-screen">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-4 border-amber-300 shadow-md px-4 py-2.5 flex justify-between items-center">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+            <div class="w-11 h-11 bg-amber-400 rounded-full flex items-center justify-center text-2xl shadow-inner animate-bounce">
+                🦁
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                    Kids WonderHub
+                </h1>
+                <p class="text-xs font-bold text-amber-600 hidden sm:block">Fun, Games & Interactive Learning!</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex space-x-1.5 bg-amber-100/80 p-1.5 rounded-full border-2 border-amber-300">
+            <button onclick="switchTab('home')" id="tab-home" class="nav-btn px-3.5 py-1.5 rounded-full font-bold text-sm text-slate-700 hover:bg-amber-300 transition flex items-center space-x-1">
+                <span>🏠 Home</span>
+            </button>
+            <button onclick="switchTab('safari')" id="tab-safari" class="nav-btn px-3.5 py-1.5 rounded-full font-bold text-sm text-slate-700 hover:bg-amber-300 transition flex items-center space-x-1">
+                <span>🦁 Animal Hunt</span>
+            </button>
+            <button onclick="switchTab('balloon')" id="tab-balloon" class="nav-btn px-3.5 py-1.5 rounded-full font-bold text-sm text-slate-700 hover:bg-amber-300 transition flex items-center space-x-1">
+                <span>🎈 Balloon Pop</span>
+            </button>
+            <button onclick="switchTab('rhymes')" id="tab-rhymes" class="nav-btn px-3.5 py-1.5 rounded-full font-bold text-sm text-slate-700 hover:bg-amber-300 transition flex items-center space-x-1">
+                <span>🎵 Rhymes</span>
+            </button>
+            <button onclick="switchTab('phonics')" id="tab-phonics" class="nav-btn px-3.5 py-1.5 rounded-full font-bold text-sm text-slate-700 hover:bg-amber-300 transition flex items-center space-x-1">
+                <span>🔤 Phonics</span>
+            </button>
+            <button onclick="switchTab('math')" id="tab-math" class="nav-btn px-3.5 py-1.5 rounded-full font-bold text-sm text-slate-700 hover:bg-amber-300 transition flex items-center space-x-1">
+                <span>🔢 Math World</span>
+            </button>
+        </nav>
+
+        <!-- Right Controls -->
+        <div class="flex items-center space-x-2">
+            <!-- Sweet Narrator Toggle -->
+            <button id="voice-toggle-btn" onclick="toggleVoice()" class="p-2 bg-pink-100 hover:bg-pink-200 border-2 border-pink-300 rounded-full text-pink-600 font-bold transition flex items-center justify-center w-10 h-10 shadow-sm" title="Sweet Lady Narrator On/Off">
+                <i class="fas fa-volume-up text-lg"></i>
+            </button>
+
+            <!-- Parent Controls Button -->
+            <button onclick="openParentModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold border-2 border-indigo-800 shadow flex items-center space-x-1">
+                <i class="fas fa-user-shield text-sm"></i>
+                <span class="hidden sm:inline">Parents</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-amber-300 shadow-lg z-40 flex justify-around py-2 px-1 text-center">
+        <button onclick="switchTab('home')" class="flex flex-col items-center text-xs font-bold text-slate-700">
+            <span class="text-base">🏠</span> Home
+        </button>
+        <button onclick="switchTab('safari')" class="flex flex-col items-center text-xs font-bold text-emerald-700">
+            <span class="text-base">🦁</span> Safari
+        </button>
+        <button onclick="switchTab('balloon')" class="flex flex-col items-center text-xs font-bold text-sky-600">
+            <span class="text-base">🎈</span> Balloon
+        </button>
+        <button onclick="switchTab('rhymes')" class="flex flex-col items-center text-xs font-bold text-purple-600">
+            <span class="text-base">🎵</span> Rhymes
+        </button>
+        <button onclick="switchTab('math')" class="flex flex-col items-center text-xs font-bold text-amber-600">
+            <span class="text-base">🔢</span> Math
+        </button>
+    </div>
+
+    <!-- Parent Announcement Banner -->
+    <div id="parent-link-banner" class="hidden max-w-6xl w-full mx-auto px-4 mt-3">
+        <div class="bg-gradient-to-r from-amber-300 via-orange-300 to-amber-200 border-4 border-amber-400 p-3 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl animate-bounce">📢</span>
+                <div>
+                    <h4 id="banner-title" class="font-extrabold text-amber-950 text-sm sm:text-base">Parent Recommendation</h4>
+                    <p id="banner-desc" class="text-xs text-amber-900 font-medium">Check out this special link added by parents!</p>
+                </div>
+            </div>
+            <a id="banner-url" href="#" target="_blank" class="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white font-extrabold rounded-xl text-xs shadow border border-amber-900 whitespace-nowrap">
+                Open Link ➔
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-3 sm:p-6 mb-16 md:mb-6">
+
+        <!-- ================= 1. HOME DASHBOARD ================= -->
+        <section id="sec-home" class="tab-content active-tab space-y-6">
+            <!-- Hero Welcome Card -->
+            <div class="bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border-4 border-white">
+                <div class="relative z-10 max-w-xl">
+                    <span class="bg-white/20 text-white font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider">Welcome Little Explorer!</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold mt-2 mb-2 drop-shadow">Learn, Play & Discover Everyday!</h2>
+                    <p class="text-sm font-medium text-pink-100 mb-6">Explore Animal Word Hunt, Balloon Pop, Nursery Rhymes, ABC Phonics, and Fun Math Quizzes!</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="switchTab('safari')" class="btn-3d px-5 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-900 font-extrabold rounded-2xl text-sm border-2 border-amber-600">
+                            🦁 Play Animal Hunt
+                        </button>
+                        <button onclick="switchTab('rhymes')" class="btn-3d px-5 py-2.5 bg-white text-purple-700 hover:bg-purple-50 font-extrabold rounded-2xl text-sm border-2 border-purple-300">
+                            🎵 Sing Rhymes
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute right-4 bottom-2 text-8xl opacity-30 sm:opacity-75 animate-float pointer-events-none">
+                    🎈
+                </div>
+            </div>
+
+            <!-- Quick Action Category Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div onclick="switchTab('safari')" class="btn-3d bg-emerald-500 text-white p-5 rounded-3xl border-4 border-emerald-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🦁</div>
+                    <h3 class="font-extrabold text-base">Animal Hunt</h3>
+                    <p class="text-xs font-medium text-emerald-100">Spell & Shoot Animals</p>
+                </div>
+
+                <div onclick="switchTab('balloon')" class="btn-3d bg-sky-500 text-white p-5 rounded-3xl border-4 border-sky-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🎈</div>
+                    <h3 class="font-extrabold text-base">Balloon Pop</h3>
+                    <p class="text-xs font-medium text-sky-100">Full-Screen Spelling</p>
+                </div>
+
+                <div onclick="switchTab('rhymes')" class="btn-3d bg-purple-500 text-white p-5 rounded-3xl border-4 border-purple-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🎵</div>
+                    <h3 class="font-extrabold text-base">Nursery Rhymes</h3>
+                    <p class="text-xs font-medium text-purple-100">Sing-Along Lyrics</p>
+                </div>
+
+                <div onclick="switchTab('phonics')" class="btn-3d bg-pink-500 text-white p-5 rounded-3xl border-4 border-pink-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🔤</div>
+                    <h3 class="font-extrabold text-base">ABC Phonics</h3>
+                    <p class="text-xs font-medium text-pink-100">A-Z Pronunciation</p>
+                </div>
+
+                <div onclick="switchTab('math')" class="btn-3d bg-amber-500 text-white p-5 rounded-3xl border-4 border-amber-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🔢</div>
+                    <h3 class="font-extrabold text-base">Math World</h3>
+                    <p class="text-xs font-medium text-amber-100">+, −, ×, ÷ Quizzes</p>
+                </div>
+
+                <div onclick="switchTab('spelling')" class="btn-3d bg-orange-500 text-white p-5 rounded-3xl border-4 border-orange-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">📖</div>
+                    <h3 class="font-extrabold text-base">Word Master</h3>
+                    <p class="text-xs font-medium text-orange-100">Visual Dictionary</p>
+                </div>
+
+                <div onclick="switchMiniGame('memory')" class="btn-3d bg-indigo-500 text-white p-5 rounded-3xl border-4 border-indigo-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🃏</div>
+                    <h3 class="font-extrabold text-base">Magic Memory</h3>
+                    <p class="text-xs font-medium text-indigo-100">Flip Card Match</p>
+                </div>
+
+                <div onclick="switchMiniGame('color')" class="btn-3d bg-teal-500 text-white p-5 rounded-3xl border-4 border-teal-300 shadow-md cursor-pointer text-center">
+                    <div class="text-5xl mb-2">🎨</div>
+                    <h3 class="font-extrabold text-base">Color Match</h3>
+                    <p class="text-xs font-medium text-teal-100">Color Fun Quiz</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 2. ANIMAL SAFARI WORD HUNT ================= -->
+        <section id="sec-safari" class="tab-content space-y-4">
+            <div class="bg-emerald-800 rounded-3xl border-4 border-emerald-500 shadow-2xl overflow-hidden relative min-h-[520px] flex flex-col">
+                <div class="relative w-full h-[520px] overflow-hidden bg-gradient-to-b from-amber-200 via-emerald-300 to-emerald-700 flex flex-col justify-between p-4">
+                    
+                    <!-- Background Jungle Decorative Icons -->
+                    <div class="absolute top-2 left-4 text-emerald-900/20 text-8xl"><i class="fas fa-tree"></i></div>
+                    <div class="absolute top-2 right-6 text-emerald-900/20 text-8xl"><i class="fas fa-tree"></i></div>
+
+                    <!-- Target Word Display Board -->
+                    <div class="relative z-10 bg-white/95 backdrop-blur-md rounded-2xl border-4 border-amber-400 p-3 sm:p-4 text-center max-w-xl mx-auto shadow-2xl w-full">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-extrabold uppercase text-amber-800">Tap the animal carrying the right letter!</span>
+                            <div class="flex items-center space-x-3 text-xs font-bold text-emerald-800">
+                                <span>⭐ Score: <span id="safari-score">0</span></span>
+                                <button onclick="nextSafariWord()" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-bold rounded-full shadow">Next ➔</button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 my-2">
+                            <span id="safari-target-emoji" class="text-5xl animate-bounce">🦁</span>
+                            <div id="safari-slots" class="flex flex-wrap justify-center gap-1.5"></div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Safari Canvas -->
+                    <canvas id="safari-canvas" class="absolute inset-0 z-0 cursor-crosshair w-full h-full"></canvas>
+
+                    <!-- Safari Victory Modal -->
+                    <div id="safari-reward-popup" class="hidden absolute inset-0 z-20 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="bg-white rounded-3xl border-8 border-amber-400 p-6 text-center max-w-md w-full shadow-2xl">
+                            <div id="safari-reward-emoji" class="text-8xl mb-2 animate-bounce">🦁</div>
+                            <h2 class="text-3xl font-extrabold text-emerald-700 mb-1" id="safari-reward-word">LION</h2>
+                            <p class="text-base font-bold text-pink-500 mb-4">Awesome Safari Hunt! You Spelled It!</p>
+                            <button onclick="nextSafariWord()" class="btn-3d px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-lg rounded-full border-2 border-teal-800">
+                                Next Animal ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. BALLOON POP SPELLING ================= -->
+        <section id="sec-balloon" class="tab-content space-y-4">
+            <div class="bg-sky-400 rounded-3xl border-4 border-sky-300 shadow-2xl overflow-hidden relative min-h-[520px] flex flex-col">
+                <div class="relative w-full h-[520px] overflow-hidden bg-gradient-to-b from-sky-400 via-sky-200 to-blue-100 flex flex-col justify-between p-4">
+                    
+                    <!-- Header Target Display -->
+                    <div class="relative z-10 bg-white/95 backdrop-blur-md rounded-2xl border-4 border-amber-400 p-3 text-center max-w-xl mx-auto shadow-xl w-full">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-extrabold text-sky-800">Pop balloons in correct spelling order!</span>
+                            <div class="flex items-center space-x-2 text-xs font-bold text-sky-900">
+                                <span>⭐ Score: <span id="balloon-score">0</span></span>
+                                <button onclick="nextBalloonWord()" class="px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold rounded-full text-xs">Skip ➔</button>
+                            </div>
+                        </div>
+                        <div class="flex justify-center items-center gap-3">
+                            <span id="balloon-target-emoji" class="text-4xl">🍎</span>
+                            <div id="balloon-slots" class="flex gap-1.5"></div>
+                        </div>
+                    </div>
+
+                    <!-- Balloon Canvas Area -->
+                    <canvas id="balloon-canvas" class="absolute inset-0 z-0 cursor-pointer w-full h-full"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 4. NURSERY RHYMES WORLD ================= -->
+        <section id="sec-rhymes" class="tab-content space-y-4">
+            <div class="bg-white/90 p-4 rounded-3xl shadow-md border-2 border-purple-200 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-purple-700">🎵 Nursery Rhymes World</h2>
+                    <p class="text-xs font-semibold text-slate-500">Read along and hear sweet lady sing these rhymes!</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="rhymes-list"></div>
+        </section>
+
+        <!-- ================= 5. ABC PHONICS ================= -->
+        <section id="sec-phonics" class="tab-content space-y-4">
+            <div class="bg-white/90 p-4 rounded-3xl shadow-md border-2 border-pink-200 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-pink-600">🔤 ABC Phonics Dictionary</h2>
+                    <p class="text-xs font-semibold text-slate-500">Tap any letter to hear phonic sounds and words!</p>
+                </div>
+                <button onclick="toggleCase()" id="case-toggle-btn" class="btn-3d px-3.5 py-1.5 bg-pink-500 text-white font-bold rounded-xl text-xs border border-pink-700">
+                    Toggle Case (A/a)
+                </button>
+            </div>
+            <div id="phonics-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"></div>
+        </section>
+
+        <!-- ================= 6. MATH WORLD ================= -->
+        <section id="sec-math" class="tab-content space-y-6">
+            <div class="bg-white/95 p-5 rounded-3xl shadow-xl border-4 border-amber-300">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-amber-700">🔢 Math Quiz Engine</h2>
+                        <p class="text-xs text-slate-500 font-semibold">Select an operation and difficulty limit below:</p>
+                    </div>
+
+                    <!-- Operation Switches -->
+                    <div class="flex gap-1.5">
+                        <button onclick="setMathOp('+')" id="op-add" class="math-op-btn px-3 py-1.5 bg-amber-400 text-slate-900 font-extrabold rounded-xl border-2 border-amber-600">➕ Add</button>
+                        <button onclick="setMathOp('-')" id="op-sub" class="math-op-btn px-3 py-1.5 bg-amber-100 text-slate-700 font-bold rounded-xl border-2 border-amber-300">➖ Sub</button>
+                        <button onclick="setMathOp('×')" id="op-mul" class="math-op-btn px-3 py-1.5 bg-amber-100 text-slate-700 font-bold rounded-xl border-2 border-amber-300">✖️ Mul</button>
+                        <button onclick="setMathOp('÷')" id="op-div" class="math-op-btn px-3 py-1.5 bg-amber-100 text-slate-700 font-bold rounded-xl border-2 border-amber-300">➗ Div</button>
+                    </div>
+                </div>
+
+                <!-- Quiz Card -->
+                <div class="bg-amber-50/80 rounded-2xl p-6 text-center border-2 border-amber-200">
+                    <div id="math-question" class="text-5xl font-extrabold text-amber-900 mb-6">5 + 3 = ?</div>
+                    <div id="math-options" class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-lg mx-auto"></div>
+                </div>
+            </div>
+
+            <!-- 1-100 Interactive Chart -->
+            <div class="bg-white/95 p-5 rounded-3xl shadow-xl border-4 border-teal-300">
+                <h3 class="text-xl font-extrabold text-teal-800 mb-3">💯 Interactive 1 to 100 Chart</h3>
+                <div id="number-chart" class="grid grid-cols-10 gap-1 sm:gap-2 text-center font-bold text-xs sm:text-sm"></div>
+            </div>
+        </section>
+
+        <!-- ================= 7. WORD MASTER DICTIONARY ================= -->
+        <section id="sec-spelling" class="tab-content space-y-4">
+            <div class="bg-white/90 p-4 rounded-3xl shadow-md border-2 border-orange-200">
+                <h2 class="text-2xl font-extrabold text-orange-600">📖 Visual Spelling Dictionary</h2>
+                <p class="text-xs font-semibold text-slate-500">Tap any card to hear pronunciation and spellings!</p>
+            </div>
+            <div id="spelling-dictionary-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+        </section>
+
+        <!-- MINI GAMES AUXILIARY -->
+        <section id="sec-minigames" class="tab-content space-y-4">
+            <div id="game-memory-container" class="minigame-box bg-purple-100 rounded-3xl border-4 border-purple-300 p-4 shadow-xl">
+                <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow mb-4">
+                    <h3 class="font-extrabold text-purple-700 text-lg">🃏 Magic Card Match</h3>
+                    <button onclick="initMemoryGame()" class="px-4 py-1.5 bg-purple-500 text-white font-bold rounded-full text-xs shadow hover:bg-purple-600">Restart 🔄</button>
+                </div>
+                <div id="memory-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-xl mx-auto"></div>
+            </div>
+
+            <div id="game-color-container" class="minigame-box hidden bg-teal-100 rounded-3xl border-4 border-teal-300 p-6 shadow-xl text-center">
+                <div class="bg-white p-6 rounded-2xl shadow-md max-w-lg mx-auto">
+                    <h3 class="font-extrabold text-teal-800 text-2xl mb-2">🎨 Color Match Game</h3>
+                    <p class="text-xs font-bold text-slate-500 mb-4">Tap the option matching the target color!</p>
+                    <div id="color-target" class="text-4xl font-extrabold my-4 py-4 rounded-2xl shadow-inner bg-slate-100">RED</div>
+                    <div id="color-options" class="grid grid-cols-2 gap-4 mt-4"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PARENTAL CONTROL DASHBOARD & LINK ADDER MODAL -->
+    <div id="parent-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl border-4 border-indigo-500 p-6 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeParentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            
+            <div id="parent-pin-step">
+                <h3 class="text-2xl font-extrabold text-indigo-800 text-center mb-1">🔐 Parents Controls</h3>
+                <p class="text-xs text-center text-slate-500 mb-4">Enter Parent PIN (Default: 1234)</p>
+                <input type="password" id="parent-pin-input" maxlength="4" class="w-full text-center text-3xl font-extrabold tracking-widest py-2 border-2 border-indigo-300 rounded-2xl mb-4 focus:outline-none focus:border-indigo-500" placeholder="••••">
+                <button onclick="verifyParentPin()" class="w-full btn-3d py-3 bg-indigo-600 text-white font-extrabold rounded-2xl text-base border-2 border-indigo-800">Unlock Controls</button>
+            </div>
+
+            <div id="parent-dashboard-step" class="hidden space-y-4">
+                <h3 class="text-xl font-extrabold text-indigo-800 border-b pb-2">⚙️ Parental Control Dashboard</h3>
+                
+                <!-- Add Custom External Link Banner -->
+                <div class="bg-amber-50 p-3 rounded-2xl border border-amber-300 space-y-2">
+                    <h4 class="font-bold text-amber-900 text-xs uppercase tracking-wider">🔗 Add Custom Educational Link Banner</h4>
+                    <input type="text" id="custom-link-title" placeholder="Banner Title (e.g. Recommended Science Channel)" class="w-full border p-2 rounded-xl text-xs">
+                    <input type="text" id="custom-link-desc" placeholder="Short Description" class="w-full border p-2 rounded-xl text-xs">
+                    <input type="url" id="custom-link-url" placeholder="URL (https://...)" class="w-full border p-2 rounded-xl text-xs">
+                    <button onclick="saveParentCustomLink()" class="w-full py-2 bg-amber-500 text-white font-bold rounded-xl text-xs shadow hover:bg-amber-600">Save Link Banner 📌</button>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Max Math Limit Range (Current: <span id="math-limit-val">20</span>)</label>
+                    <input type="range" id="math-limit-slider" min="10" max="500" value="20" class="w-full" onchange="updateMathLimit(this.value)">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Change PIN</label>
+                    <div class="flex gap-2">
+                        <input type="password" id="new-pin-input" maxlength="4" placeholder="New 4 digits" class="border p-2 rounded-xl text-xs flex-1">
+                        <button onclick="saveNewPin()" class="px-3 py-1 bg-emerald-500 text-white font-bold rounded-xl text-xs">Save PIN</button>
+                    </div>
+                </div>
+
+                <button onclick="closeParentModal()" class="w-full py-2 bg-slate-200 text-slate-700 font-bold rounded-xl text-xs hover:bg-slate-300">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        /* ================= SWEET LADY VOICE NARRATOR ================= */
+        let voiceEnabled = true;
+        let speechSynth = window.speechSynthesis;
+        let sweetLadyVoice = null;
+
+        function initVoice() {
+            if (!speechSynth) return;
+            let voices = speechSynth.getVoices();
+            sweetLadyVoice = voices.find(v => 
+                v.name.includes("Google UK English Female") || 
+                v.name.includes("Samantha") || 
+                v.name.includes("Zira") || 
+                v.name.includes("Google US English") ||
+                v.name.includes("Victoria")
+            ) || voices.find(v => v.lang.includes("en")) || voices[0];
+        }
+
+        if (speechSynth) {
+            speechSynth.onvoiceschanged = initVoice;
+            initVoice();
+        }
+
+        function speak(text) {
+            if (!voiceEnabled || !speechSynth) return;
+            speechSynth.cancel();
+            let utterance = new SpeechSynthesisUtterance(text);
+            if (sweetLadyVoice) utterance.voice = sweetLadyVoice;
+            utterance.pitch = 1.25;
+            utterance.rate = 0.88;
+            speechSynth.speak(utterance);
+        }
+
+        function toggleVoice() {
+            voiceEnabled = !voiceEnabled;
+            const btn = document.getElementById('voice-toggle-btn');
+            if (voiceEnabled) {
+                btn.innerHTML = '<i class="fas fa-volume-up text-lg"></i>';
+                btn.className = "p-2 bg-pink-100 hover:bg-pink-200 border-2 border-pink-300 rounded-full text-pink-600 font-bold transition flex items-center justify-center w-10 h-10 shadow-sm";
+                speak("Voice enabled!");
+            } else {
+                speechSynth.cancel();
+                btn.innerHTML = '<i class="fas fa-volume-mute text-lg"></i>';
+                btn.className = "p-2 bg-slate-200 border-2 border-slate-300 rounded-full text-slate-500 font-bold transition flex items-center justify-center w-10 h-10 shadow-sm";
+            }
+        }
+
+        /* Web Audio Sound Synthesizer */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playChime(type) {
+            try {
+                if (!audioCtx) audioCtx = new AudioContext();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                let now = audioCtx.currentTime;
+
+                if (type === 'pop') {
+                    osc.frequency.setValueAtTime(350, now);
+                    osc.frequency.exponentialRampToValueAtTime(850, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'win') {
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(160, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {}
+        }
+
+        /* ================= SAFARI ANIMAL WORD HUNT ================= */
+        const SAFARI_WORDS = [
+            { word: "LION", emoji: "🦁" },
+            { word: "ELEPHANT", emoji: "🐘" },
+            { word: "ZEBRA", emoji: "🦓" },
+            { word: "MONKEY", emoji: "🐒" },
+            { word: "GIRAFFE", emoji: "🦒" },
+            { word: "BEAR", emoji: "🐻" },
+            { word: "TIGER", emoji: "🐯" }
+        ];
+        const SAFARI_EMOJIS = ['🦁', '🐘', '🦓', '🐒', '🦒', '🐻', '🦊'];
+
+        let safariCanvas, safariCtx;
+        let safariIndex = 0;
+        let safariWordObj = SAFARI_WORDS[0];
+        let safariProgress = 0;
+        let safariScore = 0;
+        let activeAnimals = [];
+        let safariAnimId = null;
+
+        class SafariAnimal {
+            constructor(letter) {
+                this.x = -60;
+                this.y = 180 + Math.random() * 220;
+                this.speed = 1.3 + Math.random() * 1.5;
+                this.letter = letter;
+                this.animalEmoji = SAFARI_EMOJIS[Math.floor(Math.random() * SAFARI_EMOJIS.length)];
+                this.bounce = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.x += this.speed;
+                this.bounce += 0.05;
+                this.y += Math.sin(this.bounce) * 0.6;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.font = '50px serif';
+                ctx.fillText(this.animalEmoji, this.x, this.y);
+
+                ctx.beginPath();
+                ctx.arc(this.x + 25, this.y - 45, 22, 0, Math.PI * 2);
+                ctx.fillStyle = '#f59e0b';
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 24px Fredoka';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.letter, this.x + 25, this.y - 45);
+                ctx.restore();
+            }
+        }
+
+        function initSafariGame() {
+            safariCanvas = document.getElementById('safari-canvas');
+            if (!safariCanvas) return;
+            safariCtx = safariCanvas.getContext('2d');
+            resizeSafariCanvas();
+            window.addEventListener('resize', resizeSafariCanvas);
+
+            safariCanvas.onclick = handleSafariClick;
+            loadSafariWord();
+
+            if (safariAnimId) cancelAnimationFrame(safariAnimId);
+            animateSafari();
+        }
+
+        function resizeSafariCanvas() {
+            if (!safariCanvas) return;
+            const container = safariCanvas.parentElement;
+            safariCanvas.width = container.clientWidth;
+            safariCanvas.height = container.clientHeight;
+        }
+
+        function loadSafariWord() {
+            safariWordObj = SAFARI_WORDS[safariIndex];
+            safariProgress = 0;
+            document.getElementById('safari-target-emoji').innerText = safariWordObj.emoji;
+            document.getElementById('safari-reward-popup').classList.add('hidden');
+
+            const slots = document.getElementById('safari-slots');
+            slots.innerHTML = '';
+            for (let i = 0; i < safariWordObj.word.length; i++) {
+                let s = document.createElement('div');
+                s.id = `safari-slot-${i}`;
+                s.className = 'w-9 h-11 sm:w-11 sm:h-13 bg-white/90 border-4 border-amber-400 rounded-xl flex items-center justify-center font-extrabold text-xl sm:text-2xl text-emerald-800 shadow-inner';
+                s.innerText = '_';
+                slots.appendChild(s);
+            }
+            speak(`Hunt letters for ${safariWordObj.word}! Find letter ${safariWordObj.word[0]}`);
+        }
+
+        function spawnSafariAnimal() {
+            if (activeAnimals.length > 6) return;
+            let needed = safariWordObj.word[safariProgress];
+            let isNeeded = Math.random() < 0.65 && needed;
+            let letter = isNeeded ? needed : String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            activeAnimals.push(new SafariAnimal(letter));
+        }
+
+        function animateSafari() {
+            if (!safariCtx) return;
+            safariCtx.clearRect(0, 0, safariCanvas.width, safariCanvas.height);
+
+            if (Math.random() < 0.03) spawnSafariAnimal();
+
+            for (let i = activeAnimals.length - 1; i >= 0; i--) {
+                let a = activeAnimals[i];
+                a.update();
+                a.draw(safariCtx);
+                if (a.x > safariCanvas.width + 60) activeAnimals.splice(i, 1);
+            }
+            safariAnimId = requestAnimationFrame(animateSafari);
+        }
+
+        function handleSafariClick(e) {
+            let rect = safariCanvas.getBoundingClientRect();
+            let clickX = e.clientX - rect.left;
+            let clickY = e.clientY - rect.top;
+
+            for (let i = activeAnimals.length - 1; i >= 0; i--) {
+                let a = activeAnimals[i];
+                let dist = Math.hypot(clickX - (a.x + 25), clickY - (a.y - 20));
+
+                if (dist < 45) {
+                    let expectedLetter = safariWordObj.word[safariProgress];
+                    if (a.letter === expectedLetter) {
+                        playChime('pop');
+                        speak(a.letter);
+
+                        document.getElementById(`safari-slot-${safariProgress}`).innerText = a.letter;
+                        document.getElementById(`safari-slot-${safariProgress}`).classList.add('bg-amber-300');
+                        safariProgress++;
+                        safariScore += 10;
+                        document.getElementById('safari-score').innerText = safariScore;
+
+                        if (safariProgress >= safariWordObj.word.length) {
+                            setTimeout(completeSafariWord, 300);
+                        } else {
+                            let nextLetter = safariWordObj.word[safariProgress];
+                            setTimeout(() => speak(`Now find ${nextLetter}`), 500);
+                        }
+                    } else {
+                        playChime('wrong');
+                        speak(`That is ${a.letter}. Find ${expectedLetter}`);
+                    }
+                    activeAnimals.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        function completeSafariWord() {
+            playChime('win');
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            speak(`Hooray! You spelled ${safariWordObj.word}!`);
+
+            document.getElementById('safari-reward-emoji').innerText = safariWordObj.emoji;
+            document.getElementById('safari-reward-word').innerText = safariWordObj.word;
+            document.getElementById('safari-reward-popup').classList.remove('hidden');
+        }
+
+        function nextSafariWord() {
+            safariIndex = (safariIndex + 1) % SAFARI_WORDS.length;
+            loadSafariWord();
+        }
+
+        /* ================= BALLOON POP SPELLING ================= */
+        const BALLOON_WORDS = [
+            { word: "APPLE", emoji: "🍎" },
+            { word: "CAT", emoji: "🐱" },
+            { word: "DUCK", emoji: "🦆" },
+            { word: "FISH", emoji: "🐟" }
+        ];
+
+        let balloonCanvas, balloonCtx;
+        let balloonIndex = 0;
+        let balloonWordObj = BALLOON_WORDS[0];
+        let balloonProgress = 0;
+        let balloonScore = 0;
+        let activeBalloons = [];
+        let balloonAnimId = null;
+
+        class Balloon {
+            constructor(letter) {
+                this.x = 50 + Math.random() * (balloonCanvas.width - 100);
+                this.y = balloonCanvas.height + 40;
+                this.speed = 1.2 + Math.random() * 1.5;
+                this.letter = letter;
+                this.color = ['#ef4444', '#3b82f6', '#22c55e', '#a855f7', '#f97316'][Math.floor(Math.random() * 5)];
+            }
+
+            update() {
+                this.y -= this.speed;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.ellipse(this.x, this.y, 25, 32, 0, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 22px Fredoka';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.letter, this.x, this.y - 2);
+                ctx.restore();
+            }
+        }
+
+        function initBalloonGame() {
+            balloonCanvas = document.getElementById('balloon-canvas');
+            if (!balloonCanvas) return;
+            balloonCtx = balloonCanvas.getContext('2d');
+            resizeBalloonCanvas();
+            window.addEventListener('resize', resizeBalloonCanvas);
+
+            balloonCanvas.onclick = handleBalloonClick;
+            loadBalloonWord();
+
+            if (balloonAnimId) cancelAnimationFrame(balloonAnimId);
+            animateBalloons();
+        }
+
+        function resizeBalloonCanvas() {
+            if (!balloonCanvas) return;
+            const container = balloonCanvas.parentElement;
+            balloonCanvas.width = container.clientWidth;
+            balloonCanvas.height = container.clientHeight;
+        }
+
+        function loadBalloonWord() {
+            balloonWordObj = BALLOON_WORDS[balloonIndex];
+            balloonProgress = 0;
+            document.getElementById('balloon-target-emoji').innerText = balloonWordObj.emoji;
+
+            const slots = document.getElementById('balloon-slots');
+            slots.innerHTML = '';
+            for (let i = 0; i < balloonWordObj.word.length; i++) {
+                let s = document.createElement('div');
+                s.id = `balloon-slot-${i}`;
+                s.className = 'w-8 h-10 bg-white border-2 border-sky-400 rounded-lg flex items-center justify-center font-bold text-lg text-sky-800';
+                s.innerText = '_';
+                slots.appendChild(s);
+            }
+        }
+
+        function spawnBalloon() {
+            if (activeBalloons.length > 7) return;
+            let needed = balloonWordObj.word[balloonProgress];
+            let isNeeded = Math.random() < 0.6 && needed;
+            let letter = isNeeded ? needed : String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            activeBalloons.push(new Balloon(letter));
+        }
+
+        function animateBalloons() {
+            if (!balloonCtx) return;
+            balloonCtx.clearRect(0, 0, balloonCanvas.width, balloonCanvas.height);
+
+            if (Math.random() < 0.04) spawnBalloon();
+
+            for (let i = activeBalloons.length - 1; i >= 0; i--) {
+                let b = activeBalloons[i];
+                b.update();
+                b.draw(balloonCtx);
+                if (b.y < -40) activeBalloons.splice(i, 1);
+            }
+            balloonAnimId = requestAnimationFrame(animateBalloons);
+        }
+
+        function handleBalloonClick(e) {
+            let rect = balloonCanvas.getBoundingClientRect();
+            let clickX = e.clientX - rect.left;
+            let clickY = e.clientY - rect.top;
+
+            for (let i = activeBalloons.length - 1; i >= 0; i--) {
+                let b = activeBalloons[i];
+                let dist = Math.hypot(clickX - b.x, clickY - b.y);
+
+                if (dist < 32) {
+                    let expectedLetter = balloonWordObj.word[balloonProgress];
+                    if (b.letter === expectedLetter) {
+                        playChime('pop');
+                        speak(b.letter);
+
+                        document.getElementById(`balloon-slot-${balloonProgress}`).innerText = b.letter;
+                        balloonProgress++;
+                        balloonScore += 10;
+                        document.getElementById('balloon-score').innerText = balloonScore;
+
+                        if (balloonProgress >= balloonWordObj.word.length) {
+                            playChime('win');
+                            confetti();
+                            setTimeout(nextBalloonWord, 800);
+                        }
+                    } else {
+                        playChime('wrong');
+                    }
+                    activeBalloons.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        function nextBalloonWord() {
+            balloonIndex = (balloonIndex + 1) % BALLOON_WORDS.length;
+            loadBalloonWord();
+        }
+
+        /* ================= NURSERY RHYMES ================= */
+        const RHYMES_DATA = [
+            { title: "Twinkle Twinkle Little Star", emoji: "⭐", text: "Twinkle, twinkle, little star, How I wonder what you are! Up above the world so high, Like a diamond in the sky." },
+            { title: "Baa Baa Black Sheep", emoji: "🐑", text: "Baa, baa, black sheep, have you any wool? Yes sir, yes sir, three bags full! One for the master, and one for the dame." },
+            { title: "Humpty Dumpty", emoji: "🥚", text: "Humpty Dumpty sat on a wall, Humpty Dumpty had a great fall. All the king's horses and all the king's men, Couldn't put Humpty together again." },
+            { title: "Itsy Bitsy Spider", emoji: "🕷️", text: "The itsy bitsy spider climbed up the waterspout. Down came the rain and washed the spider out!" }
+        ];
+
+        function renderRhymes() {
+            const list = document.getElementById('rhymes-list');
+            if (!list) return;
+            list.innerHTML = '';
+            RHYMES_DATA.forEach(r => {
+                let card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-3xl border-4 border-purple-200 shadow-md flex space-x-4 items-center';
+                card.innerHTML = `
+                    <div class="text-5xl p-3 bg-purple-100 rounded-2xl animate-float">${r.emoji}</div>
+                    <div class="flex-1">
+                        <h3 class="font-extrabold text-purple-800 text-base sm:text-lg mb-1">${r.title}</h3>
+                        <p class="text-xs text-slate-600 font-medium mb-3 italic">"${r.text}"</p>
+                        <button class="btn-3d px-4 py-1.5 bg-purple-600 text-white font-bold rounded-full text-xs border border-purple-800 flex items-center space-x-1">
+                            <span>▶️ Read & Sing</span>
+                        </button>
+                    </div>
+                `;
+                card.querySelector('button').onclick = () => speak(`${r.title}... ${r.text}`);
+                list.appendChild(card);
+            });
+        }
+
+        /* ================= ABC PHONICS & SPELLING ================= */
+        const PHONICS_DATA = [
+            { letter: 'A', word: 'Apple', emoji: '🍎' }, { letter: 'B', word: 'Ball', emoji: '⚽' },
+            { letter: 'C', word: 'Cat', emoji: '🐱' }, { letter: 'D', word: 'Dog', emoji: '🐶' },
+            { letter: 'E', word: 'Elephant', emoji: '🐘' }, { letter: 'F', word: 'Fish', emoji: '🐟' },
+            { letter: 'G', word: 'Grapes', emoji: '🍇' }, { letter: 'H', word: 'Hat', emoji: '🎩' },
+            { letter: 'I', word: 'Ice Cream', emoji: '🍦' }, { letter: 'J', word: 'Juice', emoji: '🧃' },
+            { letter: 'K', word: 'Kite', emoji: '🪁' }, { letter: 'L', word: 'Lion', emoji: '🦁' },
+            { letter: 'M', word: 'Monkey', emoji: '🐵' }, { letter: 'N', word: 'Nest', emoji: '🪹' },
+            { letter: 'O', word: 'Orange', emoji: '🍊' }, { letter: 'P', word: 'Penguin', emoji: '🐧' },
+            { letter: 'Q', word: 'Queen', emoji: '👑' }, { letter: 'R', word: 'Rainbow', emoji: '🌈' },
+            { letter: 'S', word: 'Sun', emoji: '☀️' }, { letter: 'T', word: 'Tiger', emoji: '🐯' },
+            { letter: 'U', word: 'Umbrella', emoji: '☂️' }, { letter: 'V', word: 'Violin', emoji: '🎻' },
+            { letter: 'W', word: 'Watermelon', emoji: '🍉' }, { letter: 'X', word: 'Xylophone', emoji: '🎼' },
+            { letter: 'Y', word: 'Yacht', emoji: '⛵' }, { letter: 'Z', word: 'Zebra', emoji: '🦓' }
+        ];
+
+        let isUppercase = true;
+
+        function renderPhonics() {
+            const grid = document.getElementById('phonics-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            PHONICS_DATA.forEach(item => {
+                let displayLetter = isUppercase ? item.letter : item.letter.toLowerCase();
+                let card = document.createElement('div');
+                card.className = 'btn-3d bg-white p-3 rounded-2xl border-2 border-pink-200 shadow flex flex-col items-center justify-center cursor-pointer';
+                card.innerHTML = `
+                    <span class="text-3xl font-extrabold text-pink-500">${displayLetter}</span>
+                    <span class="text-3xl my-1">${item.emoji}</span>
+                    <span class="text-xs font-bold text-slate-600">${item.word}</span>
+                `;
+                card.onclick = () => {
+                    playChime('pop');
+                    speak(`${displayLetter}... is for ${item.word}`);
+                };
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleCase() {
+            isUppercase = !isUppercase;
+            renderPhonics();
+        }
+
+        function renderSpellingDictionary() {
+            const grid = document.getElementById('spelling-dictionary-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            PHONICS_DATA.forEach(item => {
+                let card = document.createElement('div');
+                card.className = 'btn-3d bg-white p-4 rounded-2xl border-2 border-amber-200 shadow flex flex-col items-center text-center cursor-pointer';
+                card.innerHTML = `
+                    <span class="text-5xl mb-2">${item.emoji}</span>
+                    <h4 class="font-extrabold text-slate-800 text-base">${item.word}</h4>
+                    <span class="text-xs font-bold text-amber-600 uppercase tracking-widest mt-1">${item.word.split('').join(' · ')}</span>
+                `;
+                card.onclick = () => speak(`${item.word}... Spelled: ${item.word.split('').join(', ')}`);
+                grid.appendChild(card);
+            });
+        }
+
+        /* ================= MATH WORLD ENGINE ================= */
+        let mathLimit = 20;
+        let currentMathOp = '+';
+        let mathAnswer = 0;
+
+        function setMathOp(op) {
+            currentMathOp = op;
+            document.querySelectorAll('.math-op-btn').forEach(btn => {
+                btn.className = 'math-op-btn px-3 py-1.5 bg-amber-100 text-slate-700 font-bold rounded-xl border-2 border-amber-300';
+            });
+            generateMathQuestion();
+        }
+
+        function generateMathQuestion() {
+            let num1 = Math.floor(Math.random() * (mathLimit / 2)) + 1;
+            let num2 = Math.floor(Math.random() * (mathLimit / 2)) + 1;
+
+            if (currentMathOp === '+') mathAnswer = num1 + num2;
+            else if (currentMathOp === '-') {
+                if (num1 < num2) [num1, num2] = [num2, num1];
+                mathAnswer = num1 - num2;
+            } else if (currentMathOp === '×') {
+                num1 = Math.floor(Math.random() * 10) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
+                mathAnswer = num1 * num2;
+            } else if (currentMathOp === '÷') {
+                num2 = Math.floor(Math.random() * 9) + 1;
+                mathAnswer = Math.floor(Math.random() * 10) + 1;
+                num1 = num2 * mathAnswer;
+            }
+
+            document.getElementById('math-question').innerText = `${num1} ${currentMathOp} ${num2} = ?`;
+
+            let options = [mathAnswer];
+            while (options.length < 4) {
+                let wrong = mathAnswer + (Math.floor(Math.random() * 7) - 3);
+                if (wrong >= 0 && !options.includes(wrong)) options.push(wrong);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsBox = document.getElementById('math-options');
+            optionsBox.innerHTML = '';
+            options.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'btn-3d py-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-extrabold text-2xl rounded-2xl border-2 border-amber-600 shadow';
+                btn.innerText = opt;
+                btn.onclick = () => {
+                    if (opt === mathAnswer) {
+                        playChime('win');
+                        speak('Correct!');
+                        confetti();
+                        setTimeout(generateMathQuestion, 1000);
+                    } else {
+                        playChime('wrong');
+                        speak('Try again!');
+                    }
+                };
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function renderNumberChart() {
+            const chart = document.getElementById('number-chart');
+            if (!chart) return;
+            chart.innerHTML = '';
+            for (let i = 1; i <= 100; i++) {
+                let cell = document.createElement('div');
+                cell.className = 'p-1.5 sm:p-2 bg-teal-50 hover:bg-teal-300 border rounded-lg text-teal-800 cursor-pointer font-bold';
+                cell.innerText = i;
+                cell.onclick = () => {
+                    playChime('pop');
+                    speak(i.toString());
+                };
+                chart.appendChild(cell);
+            }
+        }
+
+        /* ================= PARENTAL CONTROLS ================= */
+        let parentPin = "1234";
+
+        function openParentModal() {
+            document.getElementById('parent-modal').classList.remove('hidden');
+            document.getElementById('parent-pin-step').classList.remove('hidden');
+            document.getElementById('parent-dashboard-step').classList.add('hidden');
+            document.getElementById('parent-pin-input').value = '';
+        }
+
+        function closeParentModal() {
+            document.getElementById('parent-modal').classList.add('hidden');
+        }
+
+        function verifyParentPin() {
+            if (document.getElementById('parent-pin-input').value === parentPin) {
+                document.getElementById('parent-pin-step').classList.add('hidden');
+                document.getElementById('parent-dashboard-step').classList.remove('hidden');
+            } else {
+                alert('Incorrect PIN! Default is 1234');
+            }
+        }
+
+        function saveParentCustomLink() {
+            let title = document.getElementById('custom-link-title').value.trim();
+            let desc = document.getElementById('custom-link-desc').value.trim();
+            let url = document.getElementById('custom-link-url').value.trim();
+
+            if (title && url) {
+                document.getElementById('banner-title').innerText = title;
+                document.getElementById('banner-desc').innerText = desc || 'Parent recommendation';
+                document.getElementById('banner-url').href = url;
+                document.getElementById('parent-link-banner').classList.remove('hidden');
+                alert('Custom banner link added successfully!');
+                closeParentModal();
+            } else {
+                alert('Please enter at least a Title and URL!');
+            }
+        }
+
+        function updateMathLimit(val) {
+            mathLimit = parseInt(val);
+            document.getElementById('math-limit-val').innerText = val;
+            generateMathQuestion();
+        }
+
+        function saveNewPin() {
+            let newPin = document.getElementById('new-pin-input').value;
+            if (newPin.length === 4) {
+                parentPin = newPin;
+                alert('PIN Updated!');
+            }
+        }
+
+        /* ================= TAB SWITCHING LOGIC ================= */
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('bg-amber-300', 'shadow-sm'));
+
+            // Show selected tab
+            const target = document.getElementById(`sec-${tabId}`);
+            if (target) {
+                target.classList.add('active-tab');
+            } else {
+                document.getElementById('sec-home').classList.add('active-tab');
+            }
+
+            const navBtn = document.getElementById(`tab-${tabId}`);
+            if (navBtn) navBtn.classList.add('bg-amber-300', 'shadow-sm');
+
+            if (tabId === 'safari') initSafariGame();
+            if (tabId === 'balloon') initBalloonGame();
+
+            speak(`Opened ${tabId}`);
+        }
+
+        /* ================= APP INITIALIZATION ================= */
+        function initApp() {
+            switchTab('home');
+            renderPhonics();
+            renderRhymes();
+            renderSpellingDictionary();
+            generateMathQuestion();
+            renderNumberChart();
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>
